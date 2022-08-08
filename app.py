@@ -15,9 +15,10 @@ Database = client.get_database('ApsitDB')
 SampleTable = Database.logininfo
 
 
-app.route('/')
+@app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return "Hi! i am apsit-community's backend"
+
 
 @app.route('/insert-one/<name>/<moodleId>/<email>/<password>/', methods=['GET'])
 def insertOne(name, id, email, password):
