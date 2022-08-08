@@ -21,10 +21,10 @@ def hello_world():
 
 
 @app.route('/insert-one/<name>/<moodleId>/<email>/<password>/', methods=['GET'])
-def insertOne(name, id, email, password):
+def insertOne(name, moodleId, email, password):
     queryObject = {
         'Name': name,
-        'ID': id,
+        'ID': moodleId,
         'email': email,
         'password': password
     }
