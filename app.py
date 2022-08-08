@@ -15,6 +15,10 @@ Database = client.get_database('ApsitDB')
 SampleTable = Database.logininfo
 
 
+app.route('/')
+def hello_world():
+    return 'Hello World!'
+
 @app.route('/insert-one/<name>/<moodleId>/<email>/<password>/', methods=['GET'])
 def insertOne(name, id, email, password):
     queryObject = {
