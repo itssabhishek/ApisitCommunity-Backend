@@ -54,7 +54,7 @@ def find_user():
             query.pop('_id')
             query.pop('password')
             return jsonify(query), 200
-        return make_response({'message': 'User not found!'}, 404)
+        return make_response({'message': 'User not found!'}, 200)
 
 
 # To update a document in a collection, update_one()
