@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, Response
 from flask_cors import CORS
 import pymongo
 
@@ -54,7 +54,7 @@ def find_user():
             query.pop('_id')
             query.pop('password')
             return jsonify(query), 200
-        return jsonify({'message': 'User not found!'}), 404
+        return Response("{'message': 'User not found!'}", status=404)
 
 
 # To update a document in a collection, update_one()
