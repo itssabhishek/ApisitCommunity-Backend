@@ -28,17 +28,17 @@ def add_user():
         queryObject = {'moodle_ID': jsonObjectGotWithAPI['moodleId']}
         query = UserTable.find_one(queryObject)
         if query:
-            return make_response({'message': 'User already exists'}, 302)
+            return jsonify({'message': 'User already exists'}), 302
 
         newUser = {
             'name': jsonObjectGotWithAPI['user_name'],
-            'moodle_ID': jsonObjectGotWithAPI['moodleId'],
+            'moodleId': jsonObjectGotWithAPI['moodleId'],
             'email': jsonObjectGotWithAPI['email'],
             'password': jsonObjectGotWithAPI['password']
         }
 
         UserTable.insert_one(newUser)
-        return make_response({'message': 'Inserted Successfully'}, 201)
+        return jsonify({'message': 'Inserted Successfully'}), 201
 
 
 # To find the first document that matches a defined query,
@@ -48,13 +48,13 @@ def add_user():
 def find_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
-        queryObject = {'moodle_ID': jsonObjectGotWithAPI['moodleId'], 'password': jsonObjectGotWithAPI['password']}
+        queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': jsonObjectGotWithAPI['password']}
         query = UserTable.find_one(queryObject)
         if query:
             query.pop('_id')
             query.pop('password')
             return jsonify(query), 200
-        return make_response({'message': 'User not found!'}, 204)
+        return jsonify({'message': 'User not found!'}), 204
 
 
 # To update a document in a collection, update_one()
