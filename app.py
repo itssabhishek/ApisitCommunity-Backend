@@ -1,11 +1,13 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pymongo
-import bcrypt
+from flask_bcrypt import Bcrypt
 import os
+
 
 app = Flask(__name__)
 CORS(app)
+bcrypt = Bcrypt(app)
 # Replace your URL here.
 mongo_uri = os.environ.get('connection_url')
 client = pymongo.MongoClient(mongo_uri)
