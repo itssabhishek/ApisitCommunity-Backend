@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 import pymongo
 import bcrypt
@@ -30,7 +30,7 @@ def add_user():
         query = UserTable.find_one(queryObject)
         if query:
             return jsonify({'message': 'User already exists'}), 302
-
+        
         hashed_password = bcrypt.generate_password_hash(jsonObjectGotWithAPI['password'])
         newUser = {
             'name': jsonObjectGotWithAPI['user_name'],
@@ -56,9 +56,8 @@ def find_user():
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
                 return jsonify(user_in_db), 200
-        else:
-            return jsonify({'message': 'User not found!'}), 204
-
+        else: return jsonify({'message': 'User not found!'}), 204
+                
         # queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': bcrypt.check_password_hash(jsonObjectGotWithAPI['password']}
         # query = UserTable.find_one(queryObject)
         # if query:
