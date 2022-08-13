@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 import pymongo
+import bcrypt
+import os
 
 app = Flask(__name__)
 CORS(app)
 # Replace your URL here.
-connection_url = 'mongodb+srv://abhay:Abhay%409819@cluster0.6i1t3sc.mongodb.net/test'
-
-client = pymongo.MongoClient(connection_url)
+mongo_uri = os.environ.get('connection_url')
+client = pymongo.MongoClient(mongo_uri)
 
 # Database
 Database = client.get_database('ApsitDB')
@@ -29,12 +30,13 @@ def add_user():
         query = UserTable.find_one(queryObject)
         if query:
             return jsonify({'message': 'User already exists'}), 302
-
+        
+        hashed_password = bcrypt.generate_password_hash(jsonObjectGotWithAPI['password'])
         newUser = {
             'name': jsonObjectGotWithAPI['user_name'],
             'moodleId': jsonObjectGotWithAPI['moodleId'],
             'email': jsonObjectGotWithAPI['email'],
-            'password': jsonObjectGotWithAPI['password']
+            'password': hashed_password
         }
 
         UserTable.insert_one(newUser)
@@ -48,13 +50,21 @@ def add_user():
 def find_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
-        queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': jsonObjectGotWithAPI['password']}
-        query = UserTable.find_one(queryObject)
-        if query:
-            query.pop('_id')
-            query.pop('password')
-            return jsonify(query), 200
-        return jsonify({'message': 'User not found!'}), 204
+        user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId']})
+        if user_in_db:
+            if bcrypt.check_password_hash(user_in_db.password, jsonObjectGotWithAPI['password']):
+                user_in_db.pop('_id')
+                user_in_db.pop('password')
+                return jsonify(user_in_db), 200
+        else: return jsonify({'message': 'User not found!'}), 204
+                
+        # queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': bcrypt.check_password_hash(jsonObjectGotWithAPI['password']}
+        # query = UserTable.find_one(queryObject)
+        # if query:
+        #     query.pop('_id')
+        #     query.pop('password')
+        #     return jsonify(query), 200
+        # return jsonify({'message': 'User not found!'}), 204
 
 
 # To update a document in a collection, update_one()
