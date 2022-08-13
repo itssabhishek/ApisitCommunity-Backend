@@ -30,12 +30,13 @@ def add_user():
         query = UserTable.find_one(queryObject)
         if query:
             return jsonify({'message': 'User already exists'}), 302
-
+        
+        hashed_password = bcrypt.generate_password_hash(jsonObjectGotWithAPI['password'])
         newUser = {
             'name': jsonObjectGotWithAPI['user_name'],
             'moodleId': jsonObjectGotWithAPI['moodleId'],
             'email': jsonObjectGotWithAPI['email'],
-            'password': bcrypt.hashpw(jsonObjectGotWithAPI['password'].encode('utf-8'), bcrypt.gensalt())
+            'password': hashed_password
         }
 
         UserTable.insert_one(newUser)
@@ -49,13 +50,21 @@ def add_user():
 def find_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
-        queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': jsonObjectGotWithAPI['password']}
-        query = UserTable.find_one(queryObject)
-        if query:
-            query.pop('_id')
-            query.pop('password')
-            return jsonify(query), 200
-        return jsonify({'message': 'User not found!'}), 204
+        password_in_db = UserTable.find_one(jsonObjectGotWithAPI['password'])
+        if password_in_db:
+            if bcrypt.check_password_hash(password_in_db.password, jsonObjectGotWithAPI['password']):
+                password_in_db.pop('_id')
+                password_in_db.pop('password')
+                return jsonify(query), 200
+            else: return jsonify({'message': 'User not found!'}), 204
+                
+        # queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': bcrypt.check_password_hash(jsonObjectGotWithAPI['password']}
+        # query = UserTable.find_one(queryObject)
+        # if query:
+        #     query.pop('_id')
+        #     query.pop('password')
+        #     return jsonify(query), 200
+        # return jsonify({'message': 'User not found!'}), 204
 
 
 # To update a document in a collection, update_one()
