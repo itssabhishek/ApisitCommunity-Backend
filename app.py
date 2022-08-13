@@ -56,7 +56,7 @@ def find_user():
                 password_in_db.pop('_id')
                 password_in_db.pop('password')
                 return jsonify(query), 200
-            else: return jsonify({'message': 'User not found!'}), 204
+        else: return jsonify({'message': 'User not found!'}), 204
                 
         # queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': bcrypt.check_password_hash(jsonObjectGotWithAPI['password']}
         # query = UserTable.find_one(queryObject)
