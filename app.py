@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 import pymongo
+import bcrypt
+import os
 
 app = Flask(__name__)
 CORS(app)
 # Replace your URL here.
-connection_url = 'mongodb+srv://abhay:Abhay%409819@cluster0.6i1t3sc.mongodb.net/test'
-
-client = pymongo.MongoClient(connection_url)
+mongo_uri = os.environ.get('connection_url')
+client = pymongo.MongoClient(mongo_uri)
 
 # Database
 Database = client.get_database('ApsitDB')
@@ -34,7 +35,7 @@ def add_user():
             'name': jsonObjectGotWithAPI['user_name'],
             'moodleId': jsonObjectGotWithAPI['moodleId'],
             'email': jsonObjectGotWithAPI['email'],
-            'password': jsonObjectGotWithAPI['password']
+            'password': bcrypt.hashpw(jsonObjectGotWithAPI['password'].encode('utf-8'), bcrypt.gensalt())
         }
 
         UserTable.insert_one(newUser)
