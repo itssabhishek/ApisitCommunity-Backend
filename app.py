@@ -50,7 +50,7 @@ def add_user():
 def find_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
-        password_in_db = UserTable.find_one(jsonObjectGotWithAPI['moodleId'])
+        password_in_db = UserTable.find_one({'password': jsonObjectGotWithAPI['moodleId']})
         if password_in_db:
             if bcrypt.check_password_hash(password_in_db.password, jsonObjectGotWithAPI['password']):
                 password_in_db.pop('_id')
