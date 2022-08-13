@@ -54,7 +54,7 @@ def find_user():
         jsonObjectGotWithAPI = request.json
         user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId']})
         if user_in_db:
-            if bcrypt.check_password_hash(user_in_db.password, jsonObjectGotWithAPI['password']):
+            if bcrypt.check_password_hash(user_in_db['password'], jsonObjectGotWithAPI['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
                 return jsonify(user_in_db), 200
