@@ -28,9 +28,8 @@ def add_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
 
-        queryObject = {'moodle_ID': jsonObjectGotWithAPI['moodleId']}
-        query = UserTable.find_one(queryObject)
-        if query:
+        user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId'], 'email':jsonObjectGotWithAPI['email']})
+        if user_in_db:
             return jsonify({'message': 'User already exists'}), 302
         
         hashed_password = bcrypt.generate_password_hash(jsonObjectGotWithAPI['password'])
