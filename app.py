@@ -28,7 +28,7 @@ def add_user():
     if request.method == 'POST':
         jsonObjectGotWithAPI = request.json
 
-        user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId']})
+        user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId'], 'email':jsonObjectGotWithAPI['email']})
         if user_in_db:
             return jsonify({'message': 'User already exists'}), 302
         
