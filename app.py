@@ -58,29 +58,7 @@ def find_user():
                 user_in_db.pop('password')
                 return jsonify(user_in_db), 200
         else: return jsonify({'message': 'User not found!'}), 204
-                
-        # queryObject = {'moodleId': jsonObjectGotWithAPI['moodleId'], 'password': bcrypt.check_password_hash(jsonObjectGotWithAPI['password']}
-        # query = UserTable.find_one(queryObject)
-        # if query:
-        #     query.pop('_id')
-        #     query.pop('password')
-        #     return jsonify(query), 200
-        # return jsonify({'message': 'User not found!'}), 204
-
-
-# To update a document in a collection, update_one()
-# function is used. The queryObject to find the document is passed as
-# the first argument, the corresponding updateObject is passed as the
-# second argument under the '$set' index.
-# @app.route('/update/<key>/<value>/<element>/<updateValue>/', methods=['GET'])
-# def update(key, value, element, updateValue):
-#     queryObject = {key: value}
-#     updateObject = {element: updateValue}
-#     query = UserTable.update_one(queryObject, {'$set': updateObject})
-#     if query.acknowledged:
-#         return "Update Successful"
-#     else:
-#         return "Update Unsuccessful"
+ 
 
 
 if __name__ == '__main__':
