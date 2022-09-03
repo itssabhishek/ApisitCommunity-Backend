@@ -46,16 +46,16 @@ def add_user():
         hashed_password = bcrypt.generate_password_hash(json_object['password'])
 
         new_user = {
-            'firstName': json_object['firstName'],
-            'lastName': json_object['lastName'],
-            'year': json_object['year'],
-            'branch': json_object['branch'],
-            'div': json_object['div'],
-            'rollNumber': json_object['roll'],
-            'moodleId': json_object['moodleId'],
-            'email': json_object['email'],
-            'password': hashed_password,
-            'user_id': user_id
+            "firstName": json_object['firstName'],
+            "lastName": json_object['lastName'],
+            "year": json_object['year'],
+            "branch": json_object['branch'],
+            "div": json_object['div'],
+            "rollNumber": json_object['roll'],
+            "moodleId": json_object['moodleId'],
+            "email": json_object['email'],
+            "password": hashed_password,
+            "user_id": user_id
         }
 
         login_info.insert_one(new_user)
