@@ -61,7 +61,7 @@ def add_user():
         login_info.insert_one(new_user)
         
         new_user.pop('password')
-        return jsonify({'data': new_user}), 201
+        return jsonify(new_user), 201
 
 
 # To find the first document that matches a defined query,
@@ -104,7 +104,7 @@ def create_post():
         # creating a post:
         new_post = {
             'post_content': json_object['post_content'],
-            'userId': json_object[userId],
+            'userId': json_object[user_id],
             'datetime': current_time,
             'image' : image
         }
