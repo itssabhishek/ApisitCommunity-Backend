@@ -22,7 +22,7 @@ Database = client.get_database('ApsitDB')
 login_info = Database.logininfo
 create_post = Database.Postinfo
 
-user_id = ""
+userId = ""
 
 
 @app.route('/')
@@ -46,19 +46,22 @@ def add_user():
         hashed_password = bcrypt.generate_password_hash(json_object['password'])
 
         new_user = {
-            'name': json_object['user_name'],
+            'firstName': json_object['firstName'],
+            'lastName': json_object['lastName'],
+            'year': json_object['year'],
+            'branch': json_object['branch'],
+            'div': json_object['div'],
+            'rollNumber': json_object['roll'],
             'moodleId': json_object['moodleId'],
             'email': json_object['email'],
             'password': hashed_password,
-            'branch': json_object['branch'],
-            'year': json_object['year'],
-            'roll': json_object['roll'],
-            'div': json_object['div'],
             'user_id': user_id
         }
 
         login_info.insert_one(new_user)
-        return jsonify({'message': 'Inserted Successfully'}), 201
+        
+        new_user.pop('password')
+        return jsonify({'data': new_user}), 201
 
 
 # To find the first document that matches a defined query,
@@ -101,7 +104,7 @@ def create_post():
         # creating a post:
         new_post = {
             'post_content': json_object['post_content'],
-            'user_id': user_id,
+            'userId': json_object[userId],
             'datetime': current_time,
             'image' : image
         }
