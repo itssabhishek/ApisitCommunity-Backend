@@ -22,7 +22,7 @@ Database = client.get_database('ApsitDB')
 login_info = Database.logininfo
 create_post = Database.Postinfo
 
-userId = ""
+user_id = ""
 
 
 @app.route('/')
