@@ -61,18 +61,7 @@ def add_user():
         login_info.insert_one(new_user)
         
         new_user.pop('password')
-        return jsonify({
-            'firstName': json_object['firstName'],
-            'lastName': json_object['lastName'],
-            'year': json_object['year'],
-            'branch': json_object['branch'],
-            'div': json_object['div'],
-            'rollNumber': json_object['roll'],
-            'moodleId': json_object['moodleId'],
-            'email': json_object['email'],
-            'password': hashed_password,
-            'user_id': user_id
-        }), 201
+        return jsonify({'data': new_user}), 201
 
 
 # To find the first document that matches a defined query,
