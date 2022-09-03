@@ -22,7 +22,7 @@ Database = client.get_database('ApsitDB')
 login_info = Database.logininfo
 create_post = Database.Postinfo
 
-userId = ""
+user_id = ""
 
 
 @app.route('/')
@@ -101,7 +101,7 @@ def create_post():
         # creating a post:
         new_post = {
             'post_content': json_object['post_content'],
-            'userId': json_object[userId],
+            'user_id': user_id,
             'datetime': current_time,
             'image' : image
         }
