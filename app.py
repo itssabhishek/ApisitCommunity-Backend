@@ -61,7 +61,7 @@ def add_user():
         login_info.insert_one(new_user)
         
         new_user.pop('password')
-        return jsonify({'data': "Hi"}), 201
+        return jsonify({new_user}), 201
 
 
 # To find the first document that matches a defined query,
