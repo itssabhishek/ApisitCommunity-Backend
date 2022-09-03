@@ -2,7 +2,11 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pymongo
 from flask_bcrypt import Bcrypt
+import datetime
+import pytz
 import os
+from PIL import Image
+import io
 
 
 app = Flask(__name__)
@@ -15,34 +19,49 @@ client = pymongo.MongoClient(mongo_uri)
 # Database
 Database = client.get_database('ApsitDB')
 # Table
-UserTable = Database.logininfo
+login_info = Database.logininfo
+create_post = Database.Postinfo
+
+user_id = ""
 
 
 @app.route('/')
 def hello_world():
-    return "Hi! i am apsit-community's backend"
+    return "Hi! I am APSIT - Community's backend"
 
 
 @app.route('/add-user', methods=['POST'])
 def add_user():
     if request.method == 'POST':
-        jsonObjectGotWithAPI = request.json
+        json_object = request.json
 
-        moodle_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId']})
-        email_in_db =  UserTable.find_one({'email': jsonObjectGotWithAPI['email']})
+        moodle_in_db = login_info.find_one({'moodleId': json_object['moodleId']})
+        email_in_db = login_info.find_one({'email': json_object['email']})
+
         if moodle_in_db or email_in_db:
             return jsonify({'message': 'User already exists'}), 302
-        
-        hashed_password = bcrypt.generate_password_hash(jsonObjectGotWithAPI['password'])
-        newUser = {
-            'name': jsonObjectGotWithAPI['user_name'],
-            'moodleId': jsonObjectGotWithAPI['moodleId'],
-            'email': jsonObjectGotWithAPI['email'],
-            'password': hashed_password
+
+        user_id = json_object['branch'] + json_object['year'] + json_object[
+            'roll'] + json_object['div']
+        hashed_password = bcrypt.generate_password_hash(json_object['password'])
+
+        new_user = {
+            'firstName': json_object['firstName'],
+            'lastName': json_object['lastName'],
+            'year': json_object['year'],
+            'branch': json_object['branch'],
+            'div': json_object['div'],
+            'rollNumber': json_object['roll'],
+            'moodleId': json_object['moodleId'],
+            'email': json_object['email'],
+            'password': hashed_password,
+            'user_id': user_id
         }
 
-        UserTable.insert_one(newUser)
-        return jsonify({'message': 'Inserted Successfully'}), 201
+        login_info.insert_one(new_user)
+        
+        new_user.pop('password')
+        return jsonify({'data': new_user}), 201
 
 
 # To find the first document that matches a defined query,
@@ -51,15 +70,47 @@ def add_user():
 @app.route('/find-user', methods=['POST'])
 def find_user():
     if request.method == 'POST':
-        jsonObjectGotWithAPI = request.json
-        user_in_db = UserTable.find_one({'moodleId': jsonObjectGotWithAPI['moodleId']})
+        json_object = request.json
+        user_in_db = login_info.find_one({'moodleId': json_object['moodleId']})
         if user_in_db:
-            if bcrypt.check_password_hash(user_in_db['password'], jsonObjectGotWithAPI['password']):
+            if bcrypt.check_password_hash(user_in_db['password'], json_object['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
                 return jsonify(user_in_db), 200
-        else: return jsonify({'message': 'User not found!'}), 204
- 
+        else:
+            return jsonify({'message': 'User not found!'}), 204
+
+
+
+
+
+          
+# This is post Section:
+
+@app.route('/create-post', methods=['POST'])
+def create_post():
+    if request.method == 'POST':
+        json_object = request.json
+        # to add time:
+        current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+        # to add image:
+        image_from_frontend = json_object['image']
+        im = Image.open(image_from_frontend)
+        image_bytes = io.BytesIO()
+        im.save(image_bytes, format='JPEG')
+        image = {
+        'data': image_bytes.getvalue()
+        }
+        # creating a post:
+        new_post = {
+            'post_content': json_object['post_content'],
+            'userId': json_object[userId],
+            'datetime': current_time,
+            'image' : image
+        }
+
+        create_post.insert_one(new_post)
+        return jsonify({'message': 'Inserted Successfully'}), 201
 
 
 if __name__ == '__main__':
