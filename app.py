@@ -7,7 +7,7 @@ import pytz
 import os
 from PIL import Image
 import io
-
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -30,8 +30,12 @@ def hello_world():
     return "Hi! I am APSIT - Community's backend"
 
 
+dict_for_frontend = {}
+
+
 @app.route('/add-user', methods=['POST'])
 def add_user():
+    global dict_for_frontend
     if request.method == 'POST':
         json_object = request.json
 
@@ -59,9 +63,14 @@ def add_user():
         }
 
         login_info.insert_one(new_user)
-        
+
         new_user.pop('password')
-        return jsonify({'message': 'User registered!'}), 201
+
+        dict_for_frontend = new_user
+        new_user_json = json.loads(dict_for_frontend)
+        return new_user_json, 201
+
+
 
 
 # To find the first document that matches a defined query,
@@ -81,10 +90,6 @@ def find_user():
             return jsonify({'message': 'User not found!'}), 204
 
 
-
-
-
-          
 # This is post Section:
 
 @app.route('/create-post', methods=['POST'])
@@ -99,14 +104,14 @@ def create_post():
         image_bytes = io.BytesIO()
         im.save(image_bytes, format='JPEG')
         image = {
-        'data': image_bytes.getvalue()
+            'data': image_bytes.getvalue()
         }
         # creating a post:
         new_post = {
             'post_content': json_object['post_content'],
             'userId': json_object[user_id],
             'datetime': current_time,
-            'image' : image
+            'image': image
         }
 
         create_post.insert_one(new_post)
@@ -115,3 +120,5 @@ def create_post():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
