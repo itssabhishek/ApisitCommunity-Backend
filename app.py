@@ -67,7 +67,7 @@ def add_user():
         new_user.pop('password')
 
         dict_for_frontend = new_user
-        new_user_json = json.loads(dict_for_frontend)
+        new_user_json = json.dumps(dict_for_frontend)
         return new_user_json, 201
 
 
