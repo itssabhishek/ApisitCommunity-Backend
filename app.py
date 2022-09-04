@@ -63,6 +63,7 @@ def add_user():
 
             'firstName': json_object['firstName'],
             'lastName': json_object['lastName'],
+            'displayName': json_object['firstName'] + " " +  json_object['lastName'],
             'year': json_object['year'],
             'branch': json_object['branch'],
             'div': json_object['div'],
