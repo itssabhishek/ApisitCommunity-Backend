@@ -81,7 +81,7 @@ def add_user():
 
         new_user_json = JSONEncoder().encode(dict_for_frontend)
 
-        return new_user_json, 201
+        return {"user":new_user_json}, 201
 
 
 # To find the first document that matches a defined query,
