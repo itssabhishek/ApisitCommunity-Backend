@@ -58,7 +58,8 @@ def add_user():
             "rollNumber": json_object['roll'],
             "moodleId": json_object['moodleId'],
             "email": json_object['email'],
-            "password": hashed_password
+            "password": hashed_password,
+            "user_id": user_id
           
         }
 
@@ -67,7 +68,7 @@ def add_user():
         new_user.pop('password')
 
         dict_for_frontend = new_user
-        new_user_json = json.dumps(dict_for_frontend)
+        new_user_json = json.dumps(dict_for_frontend , default=lambda o: o.__dict__, sort_keys=True, indent=4)
         return new_user_json, 201
 
 
