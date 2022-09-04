@@ -60,6 +60,7 @@ def add_user():
         hashed_password = bcrypt.generate_password_hash(json_object['password'])
 
         new_user = {
+
             'firstName': json_object['firstName'],
             'lastName': json_object['lastName'],
             'year': json_object['year'],
@@ -70,13 +71,16 @@ def add_user():
             'email': json_object['email'],
             'password': hashed_password,
             'user_id': user_id
+
         }
 
         login_info.insert_one(new_user)
 
         new_user.pop('password')
         dict_for_frontend = new_user
+
         new_user_json = JSONEncoder().encode(dict_for_frontend)
+
         return new_user_json, 201
 
 
