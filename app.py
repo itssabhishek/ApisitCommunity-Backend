@@ -61,7 +61,7 @@ def add_user():
         login_info.insert_one(new_user)
         
         new_user.pop('password')
-        return jsonify(new_user), 201
+        return jsonify({'message': 'User registered!'}), 201
 
 
 # To find the first document that matches a defined query,
@@ -76,7 +76,7 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db['password'], json_object['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
-                return jsonify(user_in_db), 200
+                return jsonify({'message': 'User found!'}), 200
         else:
             return jsonify({'message': 'User not found!'}), 204
 
