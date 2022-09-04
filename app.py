@@ -8,6 +8,7 @@ import os
 from PIL import Image
 import io
 import json
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
@@ -25,6 +26,14 @@ create_post = Database.Postinfo
 user_id = ""
 
 
+# used for solving the JSON error in add-user
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+
+
 @app.route('/')
 def hello_world():
     return "Hi! I am APSIT - Community's backend"
@@ -36,6 +45,7 @@ dict_for_frontend = {}
 @app.route('/add-user', methods=['POST'])
 def add_user():
     global dict_for_frontend
+    global user_id
     if request.method == 'POST':
         json_object = request.json
 
@@ -50,27 +60,24 @@ def add_user():
         hashed_password = bcrypt.generate_password_hash(json_object['password'])
 
         new_user = {
-            "firstName": json_object['firstName'],
-            "lastName": json_object['lastName'],
-            "year": json_object['year'],
-            "branch": json_object['branch'],
-            "div": json_object['div'],
-            "rollNumber": json_object['roll'],
-            "moodleId": json_object['moodleId'],
-            "email": json_object['email'],
-            "password": hashed_password,
-            "user_id": user_id
+            'firstName': json_object['firstName'],
+            'lastName': json_object['lastName'],
+            'year': json_object['year'],
+            'branch': json_object['branch'],
+            'div': json_object['div'],
+            'rollNumber': json_object['roll'],
+            'moodleId': json_object['moodleId'],
+            'email': json_object['email'],
+            'password': hashed_password,
+            'user_id': user_id
         }
 
         login_info.insert_one(new_user)
 
         new_user.pop('password')
-
         dict_for_frontend = new_user
-        new_user_json = json.dumps(dict_for_frontend)
+        new_user_json = JSONEncoder().encode(dict_for_frontend)
         return new_user_json, 201
-
-
 
 
 # To find the first document that matches a defined query,
@@ -85,7 +92,7 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db['password'], json_object['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
-                return jsonify({'message': 'User found!'}), 200
+                return jsonify(user_in_db), 200
         else:
             return jsonify({'message': 'User not found!'}), 204
 
@@ -120,5 +127,3 @@ def create_post():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
