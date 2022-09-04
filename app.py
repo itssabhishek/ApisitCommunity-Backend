@@ -50,24 +50,27 @@ def add_user():
         hashed_password = bcrypt.generate_password_hash(json_object['password'])
 
         new_user = {
-            'firstName': json_object['firstName'],
-            'lastName': json_object['lastName'],
-            'year': json_object['year'],
-            'branch': json_object['branch'],
-            'div': json_object['div'],
-            'rollNumber': json_object['roll'],
-            'moodleId': json_object['moodleId'],
-            'email': json_object['email'],
-            'password': hashed_password,
-            'user_id': user_id
+            "firstName": json_object['firstName'],
+            "lastName": json_object['lastName'],
+            "year": json_object['year'],
+            "branch": json_object['branch'],
+            "div": json_object['div'],
+            "rollNumber": json_object['roll'],
+            "moodleId": json_object['moodleId'],
+            "email": json_object['email'],
+            "password": hashed_password,
+            "user_id": user_id
         }
 
         login_info.insert_one(new_user)
 
         new_user.pop('password')
+
         dict_for_frontend = new_user
         new_user_json = json.loads(dict_for_frontend)
         return new_user_json, 201
+
+
 
 
 # To find the first document that matches a defined query,
@@ -82,7 +85,7 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db['password'], json_object['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
-                return jsonify(user_in_db), 200
+                return jsonify({'message': 'User found!'}), 200
         else:
             return jsonify({'message': 'User not found!'}), 204
 
