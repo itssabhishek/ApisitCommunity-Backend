@@ -58,8 +58,8 @@ def add_user():
             "rollNumber": json_object['roll'],
             "moodleId": json_object['moodleId'],
             "email": json_object['email'],
-            "password": hashed_password,
-            "user_id": user_id
+            "password": hashed_password
+          
         }
 
         login_info.insert_one(new_user)
