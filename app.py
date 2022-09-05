@@ -70,12 +70,23 @@ def add_user():
         }
 
         login_info.insert_one(new_user)
-
+      
         new_user.pop("password")
 
         new_user_json = JSONEncoder().encode(new_user)
 
         return {"user": new_user_json}, 201
+      
+
+# Used for deletion user
+@app.route("/delete-user", methods=["POST"])
+def delete_user():
+    if request.method == "POST":
+        json_object = request.json
+
+        # deleting user
+        delete_user.delete_one({"user_id": json_object["user_id"]})
+        return jsonify({"message": "user deleted successfully"}), 201
 
 
 # Used for logging in 
@@ -112,15 +123,28 @@ def create_post():
         }
         
         new_post = {
+            "post_name": json_object["post_name"],
             "post_content": json_object["post_content"],
-            "userId": json_object[user_id],
+            "userId": json_object["user_id"],
             "datetime": current_time,
             "image": image
         }
 
         create_post.insert_one(new_post)
-        return jsonify({"message": "Inserted successfully"}), 201
+        return jsonify({"message": "post inserted successfully"}), 201
 
+
+      
+# Used for deletion of post
+@app.route("/delete-post", methods=["POST"])
+def delete_post():
+    if request.method == "POST":
+        json_object = request.json
+
+        # deleting post
+        delete_post.delete_one({"post_id": json_object["post_id"]})
+        return jsonify({"message": "post deleted successfully"}), 201
 
 if __name__ == "__main__":
     app.run(debug=True)
+  
