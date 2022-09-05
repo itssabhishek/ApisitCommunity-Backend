@@ -63,6 +63,7 @@ def add_user():
 
             'firstName': json_object['firstName'],
             'lastName': json_object['lastName'],
+            'displayName': json_object['firstName'] + " " +  json_object['lastName'],
             'year': json_object['year'],
             'branch': json_object['branch'],
             'div': json_object['div'],
@@ -81,7 +82,7 @@ def add_user():
 
         new_user_json = JSONEncoder().encode(dict_for_frontend)
 
-        return new_user_json, 201
+        return {"user":new_user_json}, 201
 
 
 # To find the first document that matches a defined query,
@@ -96,7 +97,7 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db['password'], json_object['password']):
                 user_in_db.pop('_id')
                 user_in_db.pop('password')
-                return jsonify(user_in_db), 200
+                return jsonify({"user":user_in_db}), 200
         else:
             return jsonify({'message': 'User not found!'}), 204
 
