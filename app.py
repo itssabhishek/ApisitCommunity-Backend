@@ -112,6 +112,7 @@ def add_user():
 # LOG IN
 @app.route("/find-user", methods=["POST"])
 def find_user():
+    global token
     if request.method == "POST":
         json_object = request.json
 
@@ -124,6 +125,13 @@ def find_user():
                 user_in_db.pop("_id")
                 user_in_db.pop("password")
 
+                # creating a jwt token and adding it to the global variable
+                token = jwt.encode({
+                    "user": json_object["moodleId"],
+                    "exp": datetime.utcnow() + timedelta(hours=2)
+                },
+                    app.config["SECRET_KEY"])
+                
                 return jsonify({"accessToken": token}), 200
 
             else:
