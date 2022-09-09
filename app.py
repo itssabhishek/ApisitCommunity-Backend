@@ -122,9 +122,6 @@ def find_user():
 
             if bcrypt.check_password_hash(user_in_db["password"], json_object["password"]):
 
-                user_in_db.pop("_id")
-                user_in_db.pop("password")
-
                 # creating a jwt token and adding it to the global variable
                 token = jwt.encode({
                     "user": json_object["moodleId"],
