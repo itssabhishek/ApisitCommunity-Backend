@@ -32,7 +32,7 @@ app.config["SECRET_KEY"] = 'thisisthesecretkey'
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.args.get('token')
+        token = request.args.get('accessToken')
 
         if not token:
             return jsonify({"message": "token is missing!"}),403
@@ -119,11 +119,11 @@ def find_user():
         user_in_db = login_info.find_one({"moodleId": json_object["moodleId"]})
         if user_in_db:
             if bcrypt.check_password_hash(user_in_db["password"],json_object["password"]):
-                token = jwt.encode({
+                accessToken = jwt.encode({
                     "user": json_object["moodleId"],
                     "exp": datetime.datetime.now(pytz.timezone("Asia/Kolkata"))+datetime.timedelta(minutes=30)},
                     app.config["SECRET_KEY"]) 
-                return jsonify({"token": token}), 200
+                return jsonify({"token": accessToken}), 200
             else:
                 return jsonify({"message": "invalid password!"}),400
         else:
