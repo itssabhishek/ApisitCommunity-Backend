@@ -7,7 +7,7 @@ import bson
 from bson import json_util, ObjectId
 from functools import wraps
 import jwt
-# import io
+import io
 from datetime import datetime, timedelta
 
 # FLASK CONFIG
@@ -100,7 +100,7 @@ def add_user():
         },
             app.config["SECRET_KEY"])
         
-        # sending the relevant information bact to the front-end
+        # sending the relevant information back to the front-end
         new_user.pop("password")
         new_user["accessToken"] = token
         
