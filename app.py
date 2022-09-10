@@ -1,4 +1,3 @@
-import os
 from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -10,6 +9,7 @@ from functools import wraps
 import jwt
 import os
 from datetime import datetime, timedelta
+
 
 # FLASK CONFIG
 app = Flask(__name__)
@@ -129,8 +129,10 @@ def find_user():
                     "exp": datetime.utcnow() + timedelta(hours=2)
                 },
                     app.config["SECRET_KEY"])
+
                 user_in_db.pop("password")
                 user_in_db = json.loads(json_util.dumps(user_in_db))
+
                 return jsonify({"accessToken": token, "user": user_in_db}), 200
 
             else:
@@ -141,7 +143,7 @@ def find_user():
 
 # DELETE
 @app.route("/delete-user", methods=["POST"])
-@token_required
+# @token_required
 def delete_user():
     json_object = request.json
     if request.method == "POST":
@@ -150,18 +152,6 @@ def delete_user():
             return jsonify({"message": "User deleted successfully"}), 200
         else:
             return jsonify({"message": "User does not exist"}), 204
-
-
-# GET
-# @app.route("/get-user", methods=["POST"])
-# def delete_user():
-#     json_object = request.json
-#     if request.method == "POST":
-#         if login_info.find_one({"moodleId": json_object["moodleId"]}):
-#             login_info.delete_one({"moodleId": json_object["moodleId"]})
-#             return jsonify({"message": "User deleted successfully"}), 200
-#         else:
-#             return jsonify({"message": "User does not exist"}), 204
 
 
 # ------------------------------- POST API -------------------------------
@@ -179,28 +169,27 @@ def create_post():
 
         # storing the received json message in a variable so that the post id can be returned
         post = {"post": new_post_json}
-        return {"id": post["post"]["_id"]["$oid"]}, 201
+        return {"_id": post["post"]["_id"]["$oid"]}, 201
 
 
 # READ
 @app.route("/posts", methods=["GET"])
 def get_posts():
     if request.method == "GET":
-        posts = post_info.find().sort("createdAt",pymongo.DESCENDING)
-
+        posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
         posts_json = json.loads(json_util.dumps(posts))
         return {"posts": posts_json}, 200
 
 
 # READ SPECIFIC POST
-@app.route("/post/<:id>", methods=["GET", "POST"])
-def post_by_id(post_id):
+@app.route("/post", methods=["GET"])
+def post_by_id():
     if request.method == "GET":
+        post_id = request.args.get('id')
         post = post_info.find_one({"_id": ObjectId(post_id)})
-        
-        post = json.loads(json_util.dumps(post))
-        return  {"posts": post}, 200
 
+        post_json = json.loads(json_util.dumps(post))
+        return {"post": post_json}, 200
 
 
 @app.route("/edit-post", methods=["POST"])
