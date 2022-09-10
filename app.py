@@ -154,7 +154,7 @@ def delete_user():
 
 # GET
 @app.route("/get-user", methods=["POST"])
-def delete_user():
+def get_user():
     json_object = request.json
     if request.method == "POST":
         if login_info.find_one({"moodleId": json_object["moodleId"]}):
