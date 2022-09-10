@@ -199,7 +199,7 @@ def post_by_id(post_id):
         post = post_info.find_one({"_id": ObjectId(post_id)})
         
         post = json.loads(json_util.dumps(post))
-        return  {"posts": post}, 200
+        return  {"post": post}, 200
 
 
 
