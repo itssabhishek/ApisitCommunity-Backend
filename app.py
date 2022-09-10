@@ -172,7 +172,8 @@ def create_post():
 def get_posts():
     if request.method == "GET":
     
-        posts = post_info.find()
+        posts = post_info.find({})
+
      
 
         posts_json = json.loads(json_util.dumps(posts))
