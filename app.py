@@ -130,6 +130,7 @@ def find_user():
                 },
                     app.config["SECRET_KEY"])
                 user_in_db.pop("password")
+                user_in_db = json.loads(json_util.dumps(user_in_db))
                 return jsonify({"accessToken": token,"user": user_in_db}), 200
 
             else:
