@@ -198,7 +198,9 @@ def post_by_id(post_id):
     if request.method == "GET":
         post = post_info.find_one({"_id": ObjectId(post_id)})
         
-        return json.loads(json_util.dumps(post))
+        post = json.loads(json_util.dumps(post))
+        return  {"posts": post}, 200
+
 
 
 @app.route("/edit-post", methods=["POST"])
