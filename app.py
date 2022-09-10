@@ -157,20 +157,7 @@ def delete_user():
 @app.route("/create-post", methods=["POST"])
 def create_post():
     if request.method == "POST":
-        json_object = request.json
-
-        new_post = {
-            "title": json_object["title"],
-            "description": json_object["description"],
-            "content": json_object["content"],
-            "cover": json_object["cover"],
-            "tags": json_object["tags"],
-            "publish": json_object["publish"],
-            "comments": json_object["comments"],
-            "metaTitle": json_object["metaTitle"],
-            "metaDescription": json_object["metaDescription"],
-            "metaKeywords": json_object["metaKeywords"]
-        }
+        new_post = request.json
 
         post_info.insert_one(new_post)
 
