@@ -183,7 +183,6 @@ def create_post():
 
 # READ
 @app.route("/posts", methods=["GET"])
-@token_required
 def get_posts():
     if request.method == "GET":
     
