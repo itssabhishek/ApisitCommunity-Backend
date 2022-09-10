@@ -193,7 +193,7 @@ def get_posts():
 
 
 # READ SPECIFIC POST
-@app.route("/posts/<:id>", methods=["GET", "POST"])
+@app.route("/post/<:id>", methods=["GET", "POST"])
 def post_by_id(post_id):
     if request.method == "GET":
         post = post_info.find_one({"_id": ObjectId(post_id)})
