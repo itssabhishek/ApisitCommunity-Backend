@@ -155,7 +155,6 @@ def delete_user():
 
 # CREATE
 @app.route("/create-post", methods=["POST"])
-@token_required
 def create_post():
     if request.method == "POST":
         json_object = request.json
@@ -194,7 +193,6 @@ def get_posts():
 
 
 @app.route("/edit-post", methods=["POST"])
-@token_required
 def edit_post():
     json_object = request.json
 
