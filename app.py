@@ -103,7 +103,6 @@ def add_user():
         
         # sending the relevant information back to the front-end
         new_user.pop("password")
-        new_user["accessToken"] = token
         
         new_user_json = json.loads(json_util.dumps(new_user))
 
@@ -181,6 +180,18 @@ def create_post():
         # storing the received json message in a variable so that the post id can be returned
         post = {"post": new_post_json}
         return {"id": post["post"]["_id"]["$oid"]}, 201
+
+# READ
+@app.route("/posts", methods=["GET"])
+@token_required
+def create_post():
+    if request.method == "GET":
+    
+        posts = post_info.find({})
+     
+
+        posts_json = json.loads(json_util.dumps(posts))
+        return {"posts": posts_json}, 200
 
 
 @app.route("/edit-post", methods=["POST"])
