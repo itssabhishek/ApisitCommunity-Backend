@@ -221,7 +221,6 @@ def edit_post():
 
 
 @app.route("/delete-post", methods=["POST"])
-@token_required
 def delete_post():
     json_object = request.json
 
