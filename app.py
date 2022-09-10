@@ -8,7 +8,7 @@ import bson
 from bson import json_util, ObjectId
 from functools import wraps
 import jwt
-import io
+import os
 from datetime import datetime, timedelta
 
 # FLASK CONFIG
