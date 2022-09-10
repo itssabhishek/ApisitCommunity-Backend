@@ -8,7 +8,7 @@ import bson
 from bson import json_util, ObjectId
 from functools import wraps
 import jwt
-import io
+import os
 from datetime import datetime, timedelta
 
 # FLASK CONFIG
@@ -153,15 +153,15 @@ def delete_user():
 
 
 # GET
-@app.route("/get-user", methods=["POST"])
-def delete_user():
-    json_object = request.json
-    if request.method == "POST":
-        if login_info.find_one({"moodleId": json_object["moodleId"]}):
-            login_info.delete_one({"moodleId": json_object["moodleId"]})
-            return jsonify({"message": "User deleted successfully"}), 200
-        else:
-            return jsonify({"message": "User does not exist"}), 204
+# @app.route("/get-user", methods=["POST"])
+# def delete_user():
+#     json_object = request.json
+#     if request.method == "POST":
+#         if login_info.find_one({"moodleId": json_object["moodleId"]}):
+#             login_info.delete_one({"moodleId": json_object["moodleId"]})
+#             return jsonify({"message": "User deleted successfully"}), 200
+#         else:
+#             return jsonify({"message": "User does not exist"}), 204
 
 
 # ------------------------------- POST API -------------------------------
@@ -186,7 +186,7 @@ def create_post():
 @app.route("/posts", methods=["GET"])
 def get_posts():
     if request.method == "GET":
-        posts = post_info.find({})
+        posts = post_info.find().sort("createdAt",pymongo.DESCENDING)
 
         posts_json = json.loads(json_util.dumps(posts))
         return {"posts": posts_json}, 200
