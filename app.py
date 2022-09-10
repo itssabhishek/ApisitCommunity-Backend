@@ -103,11 +103,10 @@ def add_user():
         
         # sending the relevant information back to the front-end
         new_user.pop("password")
-        new_user["accessToken"] = token
         
         new_user_json = json.loads(json_util.dumps(new_user))
 
-        return {"user": new_user_json}, 201
+        return {"accessToken" : token, "user": new_user_json}, 201
 
 
 # LOG IN
@@ -129,8 +128,9 @@ def find_user():
                     "exp": datetime.utcnow() + timedelta(hours=2)
                 },
                     app.config["SECRET_KEY"])
-                
-                return jsonify({"accessToken": token}), 200
+                user_in_db.pop("password")
+                user_in_db = json.loads(json_util.dumps(user_in_db))
+                return jsonify({"accessToken": token,"user": user_in_db}), 200
 
             else:
                 return jsonify({"message": "Invalid password"}), 204
@@ -155,23 +155,9 @@ def delete_user():
 
 # CREATE
 @app.route("/create-post", methods=["POST"])
-@token_required
 def create_post():
     if request.method == "POST":
-        json_object = request.json
-
-        new_post = {
-            "title": json_object["title"],
-            "description": json_object["description"],
-            "content": json_object["content"],
-            "cover": json_object["cover"],
-            "tags": json_object["tags"],
-            "publish": json_object["publish"],
-            "comments": json_object["comments"],
-            "metaTitle": json_object["metaTitle"],
-            "metaDescription": json_object["metaDescription"],
-            "metaKeywords": json_object["metaKeywords"]
-        }
+        new_post = request.json
 
         post_info.insert_one(new_post)
 
@@ -181,9 +167,19 @@ def create_post():
         post = {"post": new_post_json}
         return {"id": post["post"]["_id"]["$oid"]}, 201
 
+# READ
+@app.route("/posts", methods=["GET"])
+def get_posts():
+    if request.method == "GET":
+    
+        posts = post_info.find().sort("createdAt",pymongo.DESCENDING)
+     
+
+        posts_json = json.loads(json_util.dumps(posts))
+        return {"posts": posts_json}, 200
+
 
 @app.route("/edit-post", methods=["POST"])
-@token_required
 def edit_post():
     json_object = request.json
 
@@ -212,7 +208,6 @@ def edit_post():
 
 
 @app.route("/delete-post", methods=["POST"])
-@token_required
 def delete_post():
     json_object = request.json
 
