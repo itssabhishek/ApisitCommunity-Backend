@@ -179,7 +179,7 @@ def create_post():
 
         # storing the received json message in a variable so that the post id can be returned
         post = {"post": new_post_json}
-        return {"id": post["post"]["_id"]["$oid"]}, 201
+        return {"_id": post["post"]["_id"]["$oid"]}, 201
 
 
 # READ
@@ -187,19 +187,18 @@ def create_post():
 def get_posts():
     if request.method == "GET":
         posts = post_info.find({})
-
         posts_json = json.loads(json_util.dumps(posts))
         return {"posts": posts_json}, 200
 
 
 # READ SPECIFIC POST
-@app.route("/post/<:id>", methods=["GET", "POST"])
+@app.route("/post/<:id>", methods=["GET"])
 def post_by_id(post_id):
     if request.method == "GET":
         post = post_info.find_one({"_id": ObjectId(post_id)})
         
-        post = json.loads(json_util.dumps(post))
-        return  {"post": post}, 200
+        post_json = json.loads(json_util.dumps(post))
+        return  {"post": post_json}, 200
 
 
 
