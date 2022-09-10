@@ -192,9 +192,10 @@ def get_posts():
 
 
 # READ SPECIFIC POST
-@app.route("/post/<string:id>", methods=["GET"])
-def post_by_id(post_id):
+@app.route("/post", methods=["GET"])
+def post_by_id():
     if request.method == "GET":
+        post_id = request.args.get('id')
         post = post_info.find_one({"_id": ObjectId(post_id)})
         
         post_json = json.loads(json_util.dumps(post))
