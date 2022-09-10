@@ -107,7 +107,7 @@ def add_user():
         
         new_user_json = json.loads(json_util.dumps(new_user))
 
-        return {"user": new_user_json}, 201
+        return {"accessToken" : token, "user": new_user_json}, 201
 
 
 # LOG IN
@@ -129,8 +129,8 @@ def find_user():
                     "exp": datetime.utcnow() + timedelta(hours=2)
                 },
                     app.config["SECRET_KEY"])
-                
-                return jsonify({"accessToken": token}), 200
+                user_in_db.pop("password")
+                return jsonify({"accessToken": token,"user": user_in_db}), 200
 
             else:
                 return jsonify({"message": "Invalid password"}), 204
