@@ -138,7 +138,7 @@ def find_user():
             else:
                 return jsonify({"message": "Invalid password"}), 204
         else:
-            return jsonify({"message": "Could not verify. Check if you have entered correct Moodle ID."}), 401
+            return jsonify({"message": "Invalid moodle ID"}), 401
 
 
 # DELETE
