@@ -37,8 +37,8 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         global token
-        headers = Flask.request.headers
-        bearer = headers.get('Authorization')  
+       
+        bearer =  request.headers.get('Authorization')  
         token = bearer.split()[1]
        
         print(token)
