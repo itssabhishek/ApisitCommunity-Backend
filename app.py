@@ -164,7 +164,7 @@ def find_user():
 # DELETE
 @app.route("/delete-user", methods=["POST"])
 @token_required
-def delete_user():
+def delete_user(current_user):
     json_object = request.json
     if request.method == "POST":
         if login_info.find_one({"moodleId": json_object["moodleId"]}):
@@ -187,7 +187,7 @@ def get_user(current_user):
 # CREATE
 @app.route("/create-post", methods=["POST"])
 @token_required
-def create_post():
+def create_post(current_user):
     if request.method == "POST":
         new_post = request.json
 
@@ -203,7 +203,7 @@ def create_post():
 # READ
 @app.route("/posts", methods=["GET"])
 @token_required
-def get_posts():
+def get_posts(current_user):
     if request.method == "GET":
         posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
         posts_json = jsoner(posts)
@@ -213,7 +213,7 @@ def get_posts():
 # READ SPECIFIC POST
 @app.route("/post", methods=["GET"])
 @token_required
-def post_by_id():
+def post_by_id(current_user):
     if request.method == "GET":
         post_id = request.args.get('id')
         post = post_info.find_one({"_id": ObjectId(post_id)})
@@ -224,7 +224,7 @@ def post_by_id():
 
 @app.route("/edit-post", methods=["POST"])
 @token_required
-def edit_post():
+def edit_post(current_user):
     json_object = request.json
 
     if request.method == "POST":
@@ -253,7 +253,7 @@ def edit_post():
 
 @app.route("/delete-post", methods=["POST"])
 @token_required
-def delete_post():
+def delete_post(current_user):
     json_object = request.json
 
     if request.method == "POST":
