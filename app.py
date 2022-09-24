@@ -36,13 +36,11 @@ token = ""
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        global token
-       
-        bearer =  request.headers.get('Authorization')  
-        token = bearer.split()[1]
-       
-        print(token)
-        
+        token = None
+
+        if "Authorization" in request.headers:
+            token = request.headers.get("Authorization").split()[1]
+
         if not token:
             return jsonify({
                 "message": "Authentication Token is missing!",
@@ -51,6 +49,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"], algorithms="HS256")
+
             current_user = login_info.find_one({
                 "moodleId": data["user"]
             })
@@ -68,7 +67,7 @@ def token_required(f):
                 "error": str(e)
             }), 500
 
-        return f(current_user, *args, **kwargs)
+        return f({"user": current_user}, *args, **kwargs)
 
     return decorated
 
@@ -87,7 +86,7 @@ def hello_world():
 # CREATE ACCOUNT
 @app.route("/add-user", methods=["POST"])
 def add_user():
-    global user_id, token
+    global user_id
     if request.method == "POST":
         json_object = request.json
 
@@ -120,7 +119,7 @@ def add_user():
         login_info.insert_one(new_user)
 
         # creating a jwt token and adding it to the global variable
-        token = jwt.encode({
+        access_token = jwt.encode({
             "user": json_object["moodleId"],
             "exp": datetime.utcnow() + timedelta(hours=2)
         },
@@ -131,13 +130,12 @@ def add_user():
 
         new_user_json = jsoner(new_user)
 
-        return {"accessToken": token, "user": new_user_json}, 201
+        return {"accessToken": access_token, "user": new_user_json}, 201
 
 
 # LOG IN
 @app.route("/find-user", methods=["POST"])
 def find_user():
-    global token
     if request.method == "POST":
         json_object = request.json
 
@@ -148,7 +146,7 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db["password"], json_object["password"]):
 
                 # creating a jwt token and adding it to the global variable
-                token = jwt.encode({
+                access_token = jwt.encode({
                     "user": json_object["moodleId"],
                     "exp": datetime.utcnow() + timedelta(hours=2)
                 },
@@ -157,7 +155,7 @@ def find_user():
                 user_in_db.pop("password")
                 user_in_db = jsoner(user_in_db)
 
-                return jsonify({"accessToken": token, "user": user_in_db}), 200
+                return jsonify({"accessToken": access_token, "user": user_in_db}), 200
 
             else:
                 return jsonify({"message": "Invalid password"}), 204
