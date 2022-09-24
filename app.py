@@ -202,16 +202,6 @@ def create_post(current_user):
         return {"_id": post["post"]["_id"]["$oid"]}, 201
 
 
-# READ
-@app.route("/posts", methods=["GET"])
-@token_required
-def get_posts(current_user):
-    if request.method == "GET":
-        posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
-        posts_json = jsoner(posts)
-        return {"posts": posts_json}, 200
-
-
 # READ SPECIFIC POST
 @app.route("/post", methods=["GET"])
 @token_required
@@ -224,6 +214,30 @@ def post_by_id(current_user):
         return {"post": post_json}, 200
 
 
+
+# VIEW ALL POSTS OF EVERYONE
+@app.route("/posts", methods=["GET"])
+@token_required
+def get_posts(current_user):
+    if request.method == "GET":
+        posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
+        posts_json = jsoner(posts)
+        return {"posts": posts_json}, 200
+
+
+#  VIEW ALL POSTS OF YOURSELF
+@app.route("/allposts", methods=["GET"])
+@token_required
+def post_by_moodleId(current_user):
+    if request.method == "GET":
+        moodle_id = request.args.get('moodleId')
+        post = post_info.find_all({"moodleId": moodle_id})
+
+        post_json = jsoner(post)
+        return {"post": post_json}, 200
+
+
+# EDIT POST
 @app.route("/edit-post", methods=["POST"])
 @token_required
 def edit_post(current_user):
@@ -253,6 +267,8 @@ def edit_post(current_user):
             return jsonify({"message": "Post does not exist"}), 201
 
 
+
+# DELETE POST 
 @app.route("/delete-post", methods=["POST"])
 @token_required
 def delete_post(current_user):
