@@ -38,7 +38,8 @@ def token_required(f):
     def decorated(*args, **kwargs):
         global token
         token = request.args.get("token")
-
+        print(request)
+        
         if not token:
             return jsonify({
                 "message": "Authentication Token is missing!",
