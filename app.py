@@ -38,7 +38,7 @@ def token_required(f):
     def decorated(*args, **kwargs):
         global token
         token = request.args.get("token")
-        print(request)
+        print(request.args)
         
         if not token:
             return jsonify({
