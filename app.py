@@ -37,8 +37,11 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         global token
-        token = request.args.get("token")
-        print(request.args)
+        headers = flask.request.headers
+        bearer = headers.get('Authorization')  
+        token = bearer.split()[1]
+       
+        print(token)
         
         if not token:
             return jsonify({
