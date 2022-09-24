@@ -26,10 +26,6 @@ Database = client.get_database("ApsitDB")
 login_info = Database.logininfo
 post_info = Database.Postinfo
 
-# defining necessary variables
-user_id = ""
-token = ""
-
 
 # ------------------------------- TOOLS -------------------------------
 
@@ -72,8 +68,19 @@ def token_required(f):
     return decorated
 
 
+# JWT Authentication
+@app.route("/get-user", methods=["GET", "POST"])
+@token_required
+def get_user(current_user):
+    return jsoner(current_user)
+
+
 def jsoner(d):
     return json.loads(json_util.dumps(d))
+
+
+def hashed_password(s):
+    return bcrypt.generate_password_hash(s)
 
 
 # ------------------------------- USER API -------------------------------
@@ -86,7 +93,6 @@ def hello_world():
 # CREATE ACCOUNT
 @app.route("/add-user", methods=["POST"])
 def add_user():
-    global user_id
     if request.method == "POST":
         json_object = request.json
 
@@ -95,11 +101,6 @@ def add_user():
 
         if moodle_in_db or email_in_db:
             return jsonify({"message": "User already exists"}), 302
-
-        # making unique user_id for each registration
-        user_id = json_object["branch"] + json_object["year"] + str(json_object["rollNumber"]) + json_object["div"]
-        # encrypting password for storing in the database
-        hashed_password = bcrypt.generate_password_hash(json_object["password"])
 
         new_user = {
             "firstName": json_object["firstName"],
@@ -111,18 +112,18 @@ def add_user():
             "rollNumber": json_object["rollNumber"],
             "moodleId": json_object["moodleId"],
             "email": json_object["email"],
-            "password": hashed_password,
-            "user_id": user_id
+            "password": hashed_password(json_object["password"])
         }
 
         # appending the details in the db
         login_info.insert_one(new_user)
 
-        # creating a jwt token and adding it to the global variable
-        access_token = jwt.encode({
-            "user": json_object["moodleId"],
-            "exp": datetime.utcnow() + timedelta(hours=2)
-        },
+        # creating a jwt token
+        access_token = jwt.encode(
+            {
+                "user": json_object["moodleId"],
+                "exp": datetime.utcnow() + timedelta(hours=2)
+            },
             app.config["SECRET_KEY"])
 
         # sending the relevant information back to the front-end
@@ -146,11 +147,13 @@ def find_user():
             if bcrypt.check_password_hash(user_in_db["password"], json_object["password"]):
 
                 # creating a jwt token and adding it to the global variable
-                access_token = jwt.encode({
-                    "user": json_object["moodleId"],
-                    "exp": datetime.utcnow() + timedelta(hours=2)
-                },
-                    app.config["SECRET_KEY"])
+                access_token = jwt.encode(
+                    {
+                        "user": json_object["moodleId"],
+                        "exp": datetime.utcnow() + timedelta(hours=2)
+                    },
+                    app.config["SECRET_KEY"]
+                )
 
                 user_in_db.pop("password")
                 user_in_db = jsoner(user_in_db)
@@ -158,9 +161,40 @@ def find_user():
                 return jsonify({"accessToken": access_token, "user": user_in_db}), 200
 
             else:
-                return jsonify({"message": "Invalid password"}), 204
+                return jsonify({"message": "Invalid password"})
         else:
             return jsonify({"message": "User not found"}), 401
+
+
+# UPDATE
+@app.route("/update-user", methods=["POST"])
+# @token_required
+def update_user():
+    if request.method == "POST":
+
+        json_object = request.json
+
+        if request.method == "POST":
+
+            if login_info.find_one({"moodleId": json_object["moodleId"]}):
+
+                edited_user = {
+                    "firstName": json_object["firstName"],
+                    "lastName": json_object["lastName"],
+                    "displayName": json_object["firstName"] + " " + json_object["lastName"],
+                    "year": json_object["year"],
+                    "branch": json_object["branch"],
+                    "div": json_object["div"],
+                    "rollNumber": json_object["rollNumber"],
+                    "moodleId": json_object["moodleId"],
+                    "email": json_object["email"]
+                }
+
+                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": edited_user}, upsert=False)
+
+                return jsonify({"message": "User info updated successfully"}), 200
+            else:
+                return jsonify({"message": "User does not exist"}), 201
 
 
 # DELETE
@@ -175,14 +209,6 @@ def delete_user(current_user):
         else:
             return jsonify({"message": "User does not exist"}), 204
 
-
-# JWT Authentication
-@app.route("/get-user", methods=["GET", "POST"])
-@token_required
-def get_user(current_user):
-    return jsoner(current_user)
-
-
 # ------------------------------- POST API -------------------------------
 
 
@@ -192,9 +218,7 @@ def get_user(current_user):
 def create_post(current_user):
     if request.method == "POST":
         new_post = request.json
-
         post_info.insert_one(new_post)
-
         new_post_json = jsoner(new_post)
 
         # storing the received json message in a variable so that the post id can be returned
@@ -224,6 +248,7 @@ def post_by_id(current_user):
         return {"post": post_json}, 200
 
 
+# EDIT POST
 @app.route("/edit-post", methods=["POST"])
 @token_required
 def edit_post(current_user):
@@ -253,6 +278,7 @@ def edit_post(current_user):
             return jsonify({"message": "Post does not exist"}), 201
 
 
+# DELETE POST
 @app.route("/delete-post", methods=["POST"])
 @token_required
 def delete_post(current_user):
@@ -266,6 +292,17 @@ def delete_post(current_user):
             return jsonify({"message": "Post deleted successfully"}), 200
         else:
             return jsonify({"message": "Post does not exist"}), 201
+
+
+#  ALL POSTS OF A SPECIFIC USER
+@app.route("/user-post", methods=["POST"])
+def user_post():
+    if request.method == "POST":
+        moodle_id = request.json['moodleId']
+        post = post_info.find({"moodleId": moodle_id})
+
+        post_json = jsoner(post)
+        return {"post": post_json}, 200
 
 
 if __name__ == "__main__":
