@@ -31,33 +31,53 @@ user_id = ""
 token = ""
 
 
-# ------------------------------- CONFIGURING JWT -------------------------------
+# ------------------------------- TOOLS -------------------------------
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         global token
         token = request.args.get("token")
-        print(token)
 
         if not token:
-            return jsonify({"message": "token is missing!"}), 403
+            return jsonify({
+                "message": "Authentication Token is missing!",
+                "error": "Unauthorized"
+            }), 401
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"], algorithms="HS256")
-        except:
-            return jsonify({"message": "token is invalid"}), 403
+            current_user = login_info.find_one({
+                "moodleId": data["user"]
+            })
 
-        return f(*args, **kwargs)
+            if current_user is None:
+                return {
+                           "message": "Invalid Authentication token!",
+                           "data": None,
+                           "error": "Unauthorized"
+                       }, 401
+
+        except Exception as e:
+            return jsonify({
+                "message": "Something went wrong",
+                "error": str(e)
+            }), 500
+
+        return f(current_user, *args, **kwargs)
 
     return decorated
 
 
-@app.route("/")
-def hello_world():
-    return "Hi! I am APSIT - Community's Backend"
+def jsoner(d):
+    return json.loads(json_util.dumps(d))
 
 
 # ------------------------------- USER API -------------------------------
+
+@app.route("/")
+def hello_world():
+    return "Hi! I am APSIT - Community's Backend"
 
 
 # CREATE ACCOUNT
@@ -105,7 +125,7 @@ def add_user():
         # sending the relevant information back to the front-end
         new_user.pop("password")
 
-        new_user_json = json.loads(json_util.dumps(new_user))
+        new_user_json = jsoner(new_user)
 
         return {"accessToken": token, "user": new_user_json}, 201
 
@@ -131,19 +151,19 @@ def find_user():
                     app.config["SECRET_KEY"])
 
                 user_in_db.pop("password")
-                user_in_db = json.loads(json_util.dumps(user_in_db))
+                user_in_db = jsoner(user_in_db)
 
                 return jsonify({"accessToken": token, "user": user_in_db}), 200
 
             else:
                 return jsonify({"message": "Invalid password"}), 204
         else:
-            return jsonify({"message": "Invalid moodle ID"}), 401
+            return jsonify({"message": "User not found"}), 401
 
 
 # DELETE
 @app.route("/delete-user", methods=["POST"])
-# @token_required
+@token_required
 def delete_user():
     json_object = request.json
     if request.method == "POST":
@@ -154,18 +174,26 @@ def delete_user():
             return jsonify({"message": "User does not exist"}), 204
 
 
+# JWT Authentication
+@app.route("/get-user", methods=["GET", "POST"])
+@token_required
+def get_user(current_user):
+    return jsoner(current_user)
+
+
 # ------------------------------- POST API -------------------------------
 
 
 # CREATE
 @app.route("/create-post", methods=["POST"])
+@token_required
 def create_post():
     if request.method == "POST":
         new_post = request.json
 
         post_info.insert_one(new_post)
 
-        new_post_json = json.loads(json_util.dumps(new_post))
+        new_post_json = jsoner(new_post)
 
         # storing the received json message in a variable so that the post id can be returned
         post = {"post": new_post_json}
@@ -174,25 +202,28 @@ def create_post():
 
 # READ
 @app.route("/posts", methods=["GET"])
+@token_required
 def get_posts():
     if request.method == "GET":
         posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
-        posts_json = json.loads(json_util.dumps(posts))
+        posts_json = jsoner(posts)
         return {"posts": posts_json}, 200
 
 
 # READ SPECIFIC POST
 @app.route("/post", methods=["GET"])
+@token_required
 def post_by_id():
     if request.method == "GET":
         post_id = request.args.get('id')
         post = post_info.find_one({"_id": ObjectId(post_id)})
 
-        post_json = json.loads(json_util.dumps(post))
+        post_json = jsoner(post)
         return {"post": post_json}, 200
 
 
 @app.route("/edit-post", methods=["POST"])
+@token_required
 def edit_post():
     json_object = request.json
 
@@ -221,6 +252,7 @@ def edit_post():
 
 
 @app.route("/delete-post", methods=["POST"])
+@token_required
 def delete_post():
     json_object = request.json
 
