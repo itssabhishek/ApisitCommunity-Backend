@@ -189,7 +189,7 @@ def update_user():
 #                     "email": json_object["email"]
 #                 }
 
-                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": {...json_object, "displayName": json_object["firstName"] + " " + json_object["lastName"], }}, upsert=False)
+                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": json_object}, upsert=False)
 
                 return jsonify({"message": "User info updated successfully"}), 200
             else:
