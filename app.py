@@ -178,19 +178,18 @@ def update_user():
 
             if login_info.find_one({"moodleId": json_object["moodleId"]}):
 
-                edited_user = {
-                    "firstName": json_object["firstName"],
-                    "lastName": json_object["lastName"],
-                    "displayName": json_object["firstName"] + " " + json_object["lastName"],
-                    "year": json_object["year"],
-                    "branch": json_object["branch"],
-                    "div": json_object["div"],
-                    "rollNumber": json_object["rollNumber"],
-                    "moodleId": json_object["moodleId"],
-                    "email": json_object["email"]
-                }
+#                 edited_user = {
+#                     "firstName": json_object["firstName"],
+#                     "lastName": json_object["lastName"],
+#                     "displayName": json_object["firstName"] + " " + json_object["lastName"],
+#                     "year": json_object["year"],
+#                     "branch": json_object["branch"],
+#                     "div": json_object["div"],
+#                     "rollNumber": json_object["rollNumber"],
+#                     "email": json_object["email"]
+#                 }
 
-                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": edited_user}, upsert=False)
+                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": json_object}, upsert=False)
 
                 return jsonify({"message": "User info updated successfully"}), 200
             else:
