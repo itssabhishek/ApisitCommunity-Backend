@@ -186,7 +186,6 @@ def update_user():
                     "branch": json_object["branch"],
                     "div": json_object["div"],
                     "rollNumber": json_object["rollNumber"],
-                    "moodleId": json_object["moodleId"],
                     "email": json_object["email"]
                 }
 
