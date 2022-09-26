@@ -295,13 +295,13 @@ def delete_post(current_user):
 
 #  ALL POSTS OF A SPECIFIC USER
 @app.route("/user-post", methods=["POST"])
+# @token_required
 def user_post():
     if request.method == "POST":
-        moodle_id = request.json['moodleId']
-        post = post_info.find({"moodleId": moodle_id})
-
+        json_object = request.json
+        post = post_info.find({"author.moodleId" : json_object['moodleId']})
         post_json = jsoner(post)
-        return {"post": post_json}, 200
+        return {"post": post_json},201
 
 
 if __name__ == "__main__":
