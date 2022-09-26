@@ -29,6 +29,7 @@ post_info = Database.Postinfo
 
 # ------------------------------- TOOLS -------------------------------
 
+# Verifying the JWT token and then sending relevant information
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -75,10 +76,12 @@ def get_user(current_user):
     return jsoner(current_user)
 
 
+# Converting bson to json
 def jsoner(d):
     return json.loads(json_util.dumps(d))
 
 
+# Hashing password
 def hashed_password(s):
     return bcrypt.generate_password_hash(s)
 
@@ -168,8 +171,8 @@ def find_user():
 
 # UPDATE
 @app.route("/update-user", methods=["POST"])
-# @token_required
-def update_user():
+@token_required
+def update_user(current_user):
     if request.method == "POST":
 
         json_object = request.json
@@ -281,13 +284,13 @@ def delete_post(current_user):
 
 #  ALL POSTS OF A SPECIFIC USER
 @app.route("/user-post", methods=["POST"])
-# @token_required
-def user_post():
+@token_required
+def user_post(current_user):
     if request.method == "POST":
         json_object = request.json
-        post = post_info.find({"author.moodleId" : json_object['moodleId']})
+        post = post_info.find({"author.moodleId": json_object['moodleId']})
         post_json = jsoner(post)
-        return {"post": post_json},201
+        return {"post": post_json}, 200
 
 
 if __name__ == "__main__":
