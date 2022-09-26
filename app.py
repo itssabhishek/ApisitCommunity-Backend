@@ -173,27 +173,13 @@ def update_user():
     if request.method == "POST":
 
         json_object = request.json
+        if login_info.find_one({"moodleId": json_object["moodleId"]}):
 
-        if request.method == "POST":
+            login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": json_object}, upsert=False)
 
-            if login_info.find_one({"moodleId": json_object["moodleId"]}):
-
-#                 edited_user = {
-#                     "firstName": json_object["firstName"],
-#                     "lastName": json_object["lastName"],
-#                     "displayName": json_object["firstName"] + " " + json_object["lastName"],
-#                     "year": json_object["year"],
-#                     "branch": json_object["branch"],
-#                     "div": json_object["div"],
-#                     "rollNumber": json_object["rollNumber"],
-#                     "email": json_object["email"]
-#                 }
-
-                login_info.update_one({"moodleId": json_object["moodleId"]}, {"$set": json_object}, upsert=False)
-
-                return jsonify({"message": "User info updated successfully"}), 200
-            else:
-                return jsonify({"message": "User does not exist"}), 201
+            return jsonify({"message": "User info updated successfully"}), 200
+        else:
+            return jsonify({"message": "User does not exist"}), 401
 
 
 # DELETE
