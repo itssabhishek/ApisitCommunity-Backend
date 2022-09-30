@@ -216,8 +216,8 @@ def create_post(current_user):
 
 # READ
 @app.route("/posts", methods=["GET"])
-# @token_required
-def get_posts():
+@token_required
+def get_posts(current_user):
     if request.method == "GET":
         posts = post_info.find({}, {"cover": 0, "content": 0}).sort("createdAt", pymongo.DESCENDING)
         posts_json = jsoner(posts)
