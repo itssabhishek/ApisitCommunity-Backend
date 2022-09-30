@@ -302,7 +302,7 @@ def add_comment(current_user):
     if request.method == "POST":
         post_id = json_object["id"]
         bson_post_id = bson.ObjectId(post_id)
-        post = post_info.find_one(ObjectId(post_id))
+        post = post_info.find_one(bson_post_id)
 
         if post:
 
