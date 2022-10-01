@@ -293,5 +293,39 @@ def user_post(current_user):
         return {"post": post_json}, 200
 
 
+# COMMENT
+@app.route("/post/comments", methods=["POST"])
+@token_required
+def add_comment(current_user):
+    json_object = request.json
+
+    if request.method == "POST":
+        post_id = json_object["postId"]
+        bson_post_id = bson.ObjectId(post_id)
+        post = post_info.find_one(bson_post_id)
+
+        if post:
+
+            # user_add = {
+            #     "moodleId": json_object["moodleId"],
+            #     "name": json_object["name"],
+            #     "avatarUrl": json_object["avatarUrl"]
+            # }
+
+            # reply_comment_add = {
+            #     "moodleId": json_object["moodleId"],
+            #     "message": json_object["message"],
+            #     "postedAt": json_object["postedAt"]
+            # }
+
+            # Adding the comment into relevant field in the document
+            post_info.update_one({"_id": bson_post_id}, {"$push": {"comment": json_object}})
+            # post_info.update_one({"_id": bson_post_id}, {"$push": {"replyComment": reply_comment_add}}, upsert=False)
+
+            return jsonify({"message": "Comment added successfully"}), 200
+        else:
+            return jsonify({"message": "Post not found"}), 401
+        
+        
 if __name__ == "__main__":
     app.run(debug=True)
