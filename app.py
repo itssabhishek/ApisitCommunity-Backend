@@ -197,6 +197,7 @@ def delete_user(current_user):
         else:
             return jsonify({"message": "User does not exist"}), 204
 
+
 # ------------------------------- POST API -------------------------------
 
 
@@ -219,7 +220,13 @@ def create_post(current_user):
 @token_required
 def get_posts(current_user):
     if request.method == "GET":
-        posts = post_info.find({}, {"cover": 0, "content": 0}).sort("_id", -1)
+        posts = post_info.find({}, {
+            "cover": 0, "content": 0,
+            "author.avatarUrl": 0,
+            "author.moodleId": 0,
+            "comment": 0
+        }).sort("_id", -1)
+
         posts_json = jsoner(posts)
         return {"posts": posts_json}, 200
 
@@ -320,12 +327,76 @@ def add_comment(current_user):
 
             # Adding the comment into relevant field in the document
             post_info.update_one({"_id": bson_post_id}, {"$push": {"comment": json_object}})
+            post_info.update_one({"_id": bson_post_id}, {"$set": {"totalComments": int(len(post["comment"])) + 1}})
+
             # post_info.update_one({"_id": bson_post_id}, {"$push": {"replyComment": reply_comment_add}}, upsert=False)
 
             return jsonify({"message": "Comment added successfully"}), 200
         else:
             return jsonify({"message": "Post not found"}), 401
+
+
+# LIKE
+@app.route("/post/like", methods=["POST"])
+# @token_required
+def like():
+    
+    json_object = request.json
+    
+    if request.method == "POST":
         
+        post_id = json_object["postId"]
+        bson_post_id = bson.ObjectId(post_id)
+        post = post_info.find_one(bson_post_id)
+
+        if post:
+            if json_object["moodleId"] in post["likes"]:
+                post_info.update_one({"_id": bson_post_id},
+                                     {"$pull": {"likes": json_object["moodleId"]}}, upsert=False)
+
+                return jsonify({"message": "Post unliked"})
+
+            else:
+                post_info.update_one({"_id": bson_post_id}, {"$push": {"likes": json_object["moodleId"]}}, upsert=False)
+                # post_info.update_one({"_id": bson_post_id}, {"$set": {"totalLikes": int(len(post["likes"])) + 1}})
+
+                return jsonify({"message": "Post liked"})
+
+        else:
+            return jsonify({"message": "Post not found"})
+
+
+# BOOKMARK
+@app.route("/post/bookmark", methods=["POST"])
+# @token_required
+def bookmark():
+    
+    json_object = request.json
+    
+    if request.method == "POST":
         
+        post_id = json_object["postId"]
+        bson_post_id = bson.ObjectId(post_id)
+        post = post_info.find_one(bson_post_id)
+
+        moodle_id = json_object["moodleId"]
+        user = login_info.find_one({"moodleId": json_object["moodleId"]})
+
+        if user:
+            if post_id in post["bookmarks"]:
+                login_info.update_one({"moodleId": moodle_id},
+                                     {"$pull": {"bookmarks": post_id}}, upsert=False)
+
+                return jsonify({"message": "Post removed from bookmarks"})
+
+            else:
+                post_info.update_one({"moodleId": moodle_id}, {"$push": {"bookmarks": post_id}}, upsert=False)
+
+                return jsonify({"message": "Post bookmarked"})
+
+        else:
+            return jsonify({"message": "Invalid Moodle ID received"})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
