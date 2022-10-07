@@ -376,8 +376,6 @@ def bookmark():
     if request.method == "POST":
         
         post_id = json_object["postId"]
-        bson_post_id = bson.ObjectId(post_id)
-        post = post_info.find_one(bson_post_id)
 
         moodle_id = json_object["moodleId"]
         user = login_info.find_one({"moodleId": json_object["moodleId"]})
