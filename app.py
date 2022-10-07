@@ -390,7 +390,7 @@ def bookmark():
                 return jsonify({"message": "Post removed from bookmarks"})
 
             else:
-                post_info.update_one({"moodleId": moodle_id}, {"$push": {"bookmarks": post_id}}, upsert=False)
+                login_info.update_one({"moodleId": moodle_id}, {"$push": {"bookmarks": post_id}}, upsert=False)
 
                 return jsonify({"message": "Post bookmarked"})
 
