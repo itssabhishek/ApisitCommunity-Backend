@@ -383,7 +383,7 @@ def bookmark():
         user = login_info.find_one({"moodleId": json_object["moodleId"]})
 
         if user:
-            if post_id in post["bookmarks"]:
+            if post_id in user["bookmarks"]:
                 login_info.update_one({"moodleId": moodle_id},
                                      {"$pull": {"bookmarks": post_id}}, upsert=False)
 
