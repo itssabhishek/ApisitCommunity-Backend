@@ -327,7 +327,7 @@ def add_comment(current_user):
 
             # Adding the comment into relevant field in the document
             post_info.update_one({"_id": bson_post_id}, {"$push": {"comment": json_object}})
-            post_info.update_one({"_id": bson_post_id}, {"$set": {"totalComments": int(len(post["comment"])) + 1}})
+            # post_info.update_one({"_id": bson_post_id}, {"$set": {"totalComments": int(len(post["comment"])) + 1}})
 
             # post_info.update_one({"_id": bson_post_id}, {"$push": {"replyComment": reply_comment_add}}, upsert=False)
 
