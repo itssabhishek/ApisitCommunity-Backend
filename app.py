@@ -223,8 +223,7 @@ def get_posts(current_user):
         posts = post_info.find({}, {
             "cover": 0, "content": 0,
             "author.avatarUrl": 0,
-            "author.moodleId": 0,
-            "comment": 0
+            "author.moodleId": 0
         }).sort("_id", -1)
 
         posts_json = jsoner(posts)
