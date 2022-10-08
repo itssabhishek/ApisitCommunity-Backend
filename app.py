@@ -223,7 +223,8 @@ def get_posts(current_user):
         posts = post_info.find({}, {
             "cover": 0, "content": 0,
             "author.avatarUrl": 0,
-            "author.moodleId": 0
+            "author.moodleId": 0,
+            "comment": 0
         }).sort("_id", -1)
 
         posts_json = jsoner(posts)
@@ -344,7 +345,8 @@ def like():
 
             else:
                 post_info.update_one({"_id": bson_post_id}, {"$push": {"like": json_object["moodleId"]}}, upsert=False)
-    
+                post_info.update_one({"_id": bson_post_id}, {"$set": {"totalComments": int(len(post["comment"])) + 1}})
+
 
                 return jsonify({"message": "Post liked"})
 
