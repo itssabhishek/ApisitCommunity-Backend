@@ -220,13 +220,7 @@ def create_post(current_user):
 @token_required
 def get_posts(current_user):
     if request.method == "GET":
-        posts = post_info.find({}, {
-            "cover": 0, "content": 0,
-            "author.avatarUrl": 0,
-            "author.moodleId": 0,
-            "comment": 0
-        }).sort("_id", -1)
-
+        posts = post_info.find().sort("createdAt", pymongo.DESCENDING)
         posts_json = jsoner(posts)
         return {"posts": posts_json}, 200
 
