@@ -313,23 +313,10 @@ def add_comment(current_user):
 
         if post:
 
-            # user_add = {
-            #     "moodleId": json_object["moodleId"],
-            #     "name": json_object["name"],
-            #     "avatarUrl": json_object["avatarUrl"]
-            # }
-
-            # reply_comment_add = {
-            #     "moodleId": json_object["moodleId"],
-            #     "message": json_object["message"],
-            #     "postedAt": json_object["postedAt"]
-            # }
 
             # Adding the comment into relevant field in the document
             post_info.update_one({"_id": bson_post_id}, {"$push": {"comment": json_object}})
-            # post_info.update_one({"_id": bson_post_id}, {"$set": {"totalComments": int(len(post["comment"])) + 1}})
-
-            # post_info.update_one({"_id": bson_post_id}, {"$push": {"replyComment": reply_comment_add}}, upsert=False)
+          
 
             return jsonify({"message": "Comment added successfully"}), 200
         else:
@@ -350,15 +337,15 @@ def like():
         post = post_info.find_one(bson_post_id)
 
         if post:
-            if json_object["moodleId"] in post["likes"]:
+            if json_object["moodleId"] in post["like"]:
                 post_info.update_one({"_id": bson_post_id},
-                                     {"$pull": {"likes": json_object["moodleId"]}}, upsert=False)
+                                     {"$pull": {"like": json_object["moodleId"]}}, upsert=False)
 
                 return jsonify({"message": "Post unliked"})
 
             else:
-                post_info.update_one({"_id": bson_post_id}, {"$push": {"likes": json_object["moodleId"]}}, upsert=False)
-                # post_info.update_one({"_id": bson_post_id}, {"$set": {"totalLikes": int(len(post["likes"])) + 1}})
+                post_info.update_one({"_id": bson_post_id}, {"$push": {"like": json_object["moodleId"]}}, upsert=False)
+    
 
                 return jsonify({"message": "Post liked"})
 
@@ -381,14 +368,14 @@ def bookmark():
         user = login_info.find_one({"moodleId": json_object["moodleId"]})
 
         if user:
-            if post_id in user["bookmarks"]:
+            if post_id in user["bookmark"]:
                 login_info.update_one({"moodleId": moodle_id},
-                                     {"$pull": {"bookmarks": post_id}}, upsert=False)
+                                     {"$pull": {"bookmark": post_id}}, upsert=False)
 
                 return jsonify({"message": "Post removed from bookmarks"})
 
             else:
-                login_info.update_one({"moodleId": moodle_id}, {"$push": {"bookmarks": post_id}}, upsert=False)
+                login_info.update_one({"moodleId": moodle_id}, {"$push": {"bookmark": post_id}}, upsert=False)
 
                 return jsonify({"message": "Post bookmarked"})
 
