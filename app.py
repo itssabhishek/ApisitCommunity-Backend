@@ -164,7 +164,7 @@ def find_user():
                 return jsonify({"accessToken": access_token, "user": user_in_db}), 200
 
             else:
-                return jsonify({"message": "Invalid password"})
+                return jsonify({"message": "Invalid password"}), 401
         else:
             return jsonify({"message": "User not found"}), 401
 
