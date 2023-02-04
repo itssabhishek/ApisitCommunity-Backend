@@ -18,7 +18,8 @@ CORS(app)
 bcrypt = Bcrypt(app)
 
 # MONGODB CONFIG
-mongo_uri = os.environ.get("connection_url")
+# mongo_uri = os.environ.get("connection_url")
+mongo_uri = "mongodb+srv://abhay:Abhay%409819@cluster0.6i1t3sc.mongodb.net/test"
 client = pymongo.MongoClient(mongo_uri)
 
 Database = client.get_database("ApsitDB")
