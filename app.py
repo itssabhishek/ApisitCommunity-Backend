@@ -164,7 +164,7 @@ def find_user():
                 return jsonify({"accessToken": access_token, "user": user_in_db}), 200
 
             else:
-                return jsonify({"message": "Invalid password"})
+                return jsonify({"message": "Invalid password"}), 401
         else:
             return jsonify({"message": "User not found"}), 401
 
@@ -356,22 +356,21 @@ def like():
 
 # BOOKMARK
 @app.route("/post/bookmark", methods=["POST"])
-# @token_required
-def bookmark():
-    
+@token_required
+def bookmark(current_user):
     json_object = request.json
-    
+
     if request.method == "POST":
-        
+
         post_id = json_object["postId"]
 
         moodle_id = json_object["moodleId"]
-        user = login_info.find_one({"moodleId": json_object["moodleId"]})
+        user = login_info.find_one({"moodleId": moodle_id})
 
         if user:
             if post_id in user["bookmark"]:
                 login_info.update_one({"moodleId": moodle_id},
-                                     {"$pull": {"bookmark": post_id}}, upsert=False)
+                                      {"$pull": {"bookmark": post_id}}, upsert=False)
 
                 return jsonify({"message": "Post removed from bookmarks"})
 
@@ -384,5 +383,22 @@ def bookmark():
             return jsonify({"message": "Invalid Moodle ID received"})
 
 
+# ------------------------------- INTERNSHIP API -------------------------------
+
+@app.route("/internships", methods=["POST"])
+@token_required
+def fetch_internships(current_user):
+    json_object = request.json
+
+    if request.method == "POST":
+
+        domain = json_object["domain"]
+        internship_in_db = internships.find({"domain": domain})
+        internships_json = jsoner(internship_in_db)
+
+        return jsonify({"internships": internships_json})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
