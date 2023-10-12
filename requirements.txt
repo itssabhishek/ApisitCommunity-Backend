@@ -18,7 +18,7 @@ idna==3.3
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
-Pillow==9.2.0
+Pillow==10.0.1
 pycparser==2.21
 pymongo==4.2.0
 PySocks==1.7.1
